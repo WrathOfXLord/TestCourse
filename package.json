@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,8 +14,14 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.1",
+    "joi": "^17.13.3",
     "mongoose": "^8.7.3",
     "packagetest": "file:",
     "underscore": "^1.13.7"
+  },
+  "devDependencies": {
+    "jshint": "^2.13.6",
+    "lru-cache": "^11.0.1",
+    "nodemon": "^3.1.7"
   }
 }
