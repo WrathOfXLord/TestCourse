@@ -1,33 +1,54 @@
 import express from "express"
-import CourseRoutes from "./CourseRouter.js"
-import log from "./logger.js";
+import debug from "debug";
+import config from "config";
 import morgan from "morgan";
 import helmet from "helmet";
 
-const app = express();
+import fs from "fs"
+import path, { dirname } from "path";
+import { fileURLToPath } from 'url';
+
+import HomeRoutes from "./routes/home.js"
+import CourseRoutes from "./routes/courses.js"
+import logger from "./middleware/logger.js";
+import chalk from "chalk";
+import UserRoutes from "./routes/users.js";
+
+const startupDebugger = debug("app:startup");
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const logFilePath = path.join(__dirname, 'application.log');
+const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+
 const PORT = process.env.PORT || 3000;
+const app = express();
 
-app.use(express.json());
-app.use(log);
-app.use(helmet());
-app.use("/api/v1/courses", CourseRoutes);
+app.set("view engine", "pug");
+app.set("views", "./views"); //default
 
-if(app.get("env") === "development") {
-    app.use(morgan("tiny"));
-    console.log("Morgan enabled...");
+// console.log(`App Name: ${config.get("name")}`);
+// console.log(`Mail Server: ${config.get("mail.host")}`);
+// console.log(`Mail Password: ${config.get("mail.password")}`);
+
+if (process.env.NODE_ENV === "development") {
+    app.use((req, res, next) => logger(req, res, next, true, logStream));
+    startupDebugger("Logger enabled for development...");
 }
 
-app.get("/", (request, response) => {
-    response.json({
-        status: response.statusCode,
-        message: "Hello World"
-    });
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(helmet());
 
-app.get("/api/v1", (request, response) => {
-    response.send("Welcome to the API Information Page!");
-});
+const mdFile = path.join(__dirname, "..", "readme.md");
+export default mdFile;
+
+app.use("/", HomeRoutes);
+app.use("/api/v1/courses", CourseRoutes);
+app.use("/api/v1/users", UserRoutes)
 
 app.listen(PORT, () => {
-    console.log(`Server is runing on ${PORT}...`);
+    startupDebugger(chalk.blue.bold(`Server is runing on ${chalk.greenBright(PORT)}...`));
 });

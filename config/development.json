@@ -1,0 +1,6 @@
+{
+    "name": "packagetest - development",
+    "mail": {
+        "host": "dev-mail-service"
+    }
+}

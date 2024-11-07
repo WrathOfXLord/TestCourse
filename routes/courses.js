@@ -1,5 +1,6 @@
 import express from "express"
 import Joi from "joi";
+import { log } from "../middleware/logger.js";
 
 const courses = [
     {id: 1, name: "course1"},
@@ -30,13 +31,27 @@ courseRouter.post("/", (request, response) => {
         const errors = error.details.map(detail => detail.message);
         return response.status(400).send(errors);
     }
+ 
+    createUser(request.body.name, course => {
+        courses.push(course);
+        response.status(201).send(course);
+        log(course);
+    });    
+});
+
+const createUser = (name, callback) => {
     const course = {
         id: courses.length + 1,
-        name: request.body.name
+        name: name
     };
-    courses.push(course);
-    response.status(201).send(course);
-});
+
+    const delay = 500 //ms
+    setTimeout(() => {
+        console.log("Creating a new user...");
+        callback(course);
+    }, delay);
+        
+}
 
 courseRouter.put("/:id", (request, response) => {
     const course = courses.find(course => course.id === parseInt(request.params.id));
