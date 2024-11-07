@@ -10,9 +10,10 @@ import { fileURLToPath } from 'url';
 
 import HomeRoutes from "./routes/home.js"
 import CourseRoutes from "./routes/courses.js"
-import logger from "./middleware/logger.js";
+import logger, {log} from "./middleware/logger.js";
 import chalk from "chalk";
 import UserRoutes from "./routes/users.js";
+import customerRouter from "./routes/customers.js";
 
 const startupDebugger = debug("app:startup");
 
@@ -34,7 +35,7 @@ app.set("views", "./views"); //default
 
 if (process.env.NODE_ENV === "development") {
     app.use((req, res, next) => logger(req, res, next, true, logStream));
-    startupDebugger("Logger enabled for development...");
+    log("Logger enabled for development...");
 }
 
 app.use(express.json());
@@ -48,7 +49,8 @@ export default mdFile;
 app.use("/", HomeRoutes);
 app.use("/api/v1/courses", CourseRoutes);
 app.use("/api/v1/users", UserRoutes)
+app.use("/api/v1/customers", customerRouter);
 
 app.listen(PORT, () => {
-    startupDebugger(chalk.blue.bold(`Server is runing on ${chalk.greenBright(PORT)}...`));
+    log(chalk.blue.bold(`Server is runing on ${chalk.greenBright(PORT)}...`));
 });
